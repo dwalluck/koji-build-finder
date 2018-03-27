@@ -48,4 +48,36 @@ public class KojiLocalArchive {
     public void setFiles(List<String> files) {
         this.files = files;
     }
+
+    @Override
+    public int hashCode() {
+        return 31 + ((archive == null) ? 0 : archive.hashCode());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        KojiLocalArchive other = (KojiLocalArchive) obj;
+
+        if (archive == null) {
+            if (other.archive != null) {
+                return false;
+            }
+        } else if (!archive.equals(other.archive)) {
+            return false;
+        }
+
+        return true;
+    }
 }
