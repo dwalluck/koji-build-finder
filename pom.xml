@@ -116,7 +116,7 @@
     <version.org.jboss.byteman>4.0.8</version.org.jboss.byteman>
     <version.org.json.json>20190722</version.org.json.json>
     <version.org.ow2.asm>7.2</version.org.ow2.asm>
-    <version.org.slf4j>1.7.28</version.org.slf4j>
+    <version.org.slf4j>1.7.29</version.org.slf4j>
   </properties>
 
   <dependencyManagement>
