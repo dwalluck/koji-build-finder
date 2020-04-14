@@ -73,7 +73,7 @@
     <version.com.fasterxml.jackson.core>2.10.3</version.com.fasterxml.jackson.core>
     <version.com.github.spotbugs>4.0.0</version.com.github.spotbugs>
     <version.com.github.stefanbirkner>1.19.0</version.com.github.stefanbirkner>
-    <version.com.google.guava>28.2-jre</version.com.google.guava>
+    <version.com.google.guava>29.0-jre</version.com.google.guava>
     <version.com.j2html>1.4.0</version.com.j2html>
     <version.com.mashape.unirest>1.4.9</version.com.mashape.unirest>
     <version.com.mycila>3.0</version.com.mycila>
