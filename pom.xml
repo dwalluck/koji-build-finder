@@ -68,7 +68,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <skipITs>true</skipITs>
     <version.ch.qos.logback>1.2.3</version.ch.qos.logback>
-    <version.com.fasterxml.jackson.core>2.10.3</version.com.fasterxml.jackson.core>
+    <version.com.fasterxml.jackson.core>2.11.0</version.com.fasterxml.jackson.core>
     <version.com.github.ekryd.sortpom>2.11.0</version.com.github.ekryd.sortpom>
     <version.com.github.spotbugs>4.0.0</version.com.github.spotbugs>
     <version.com.github.stefanbirkner>1.19.0</version.com.github.stefanbirkner>
