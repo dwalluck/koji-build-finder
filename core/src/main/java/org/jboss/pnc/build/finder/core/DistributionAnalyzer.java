@@ -18,6 +18,8 @@ package org.jboss.pnc.build.finder.core;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
+import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,6 +68,9 @@ import org.slf4j.LoggerFactory;
 
 public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DistributionAnalyzer.class);
+
+    private static final List<String> EXTENSIONS = Collections.unmodifiableList(
+        Arrays.asList("jar", "war", "rar", "ear", "sar", "kar", "jdocbook", "jdocbook-style", "plugin"));
 
     /**
      * Ideally, we should be able to use {@link FileSystemManager#canCreateFileSystem} but that relies on an accurate
@@ -136,11 +141,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     }
 
     private static boolean isJar(FileObject fo) {
-        String ext = fo.getName().getExtension();
-        List<String> exts = Arrays
-                .asList("jar", "war", "rar", "ear", "sar", "kar", "jdocbook", "jdocbook-style", "plugin");
-
-        return exts.contains(ext);
+        return EXTENSIONS.contains(fo.getName().getExtension());
     }
 
     public Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksumFiles() throws IOException {
@@ -189,7 +190,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                         throw e;
                                     }
 
-                                    if (queue != null && checksumType == ChecksumType.md5) {
+                                    if (queue != null && (checksumType == md5 || checksumType == sha256)) {
                                         for (Entry<String, LocalFile> entry : entries) {
                                             try {
                                                 Checksum checksum = new Checksum(
@@ -280,7 +281,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return Collections.unmodifiableMap(map);
     }
 
-    private void cleanupVfsCache() throws IOException {
+    private static void cleanupVfsCache() throws IOException {
         // XXX: <https://issues.apache.org/jira/browse/VFS-634>
         String tmpDir = System.getProperty("java.io.tmpdir");
 
@@ -291,7 +292,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         }
     }
 
-    private FileSystemManager createManager() throws FileSystemException {
+    private static FileSystemManager createManager() throws FileSystemException {
         StandardFileSystemManager sfs = new StandardFileSystemManager();
 
         sfs.init();
@@ -314,7 +315,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return sfs;
     }
 
-    private FileObject getFileObjectOfFile(FileSystemManager manager, String input) throws IOException {
+    private static FileObject getFileObjectOfFile(FileSystemManager manager, String input) throws IOException {
         FileObject fo;
 
         try {
@@ -324,7 +325,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             File file = new File(input);
 
             if (!file.exists()) {
-                throw new IOException("Input file " + file + " does not exist");
+                throw new IOException("Input file " + file + " does not exist", e);
             }
 
             fo = manager.resolveFile(file.toURI());
@@ -343,7 +344,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return fo;
     }
 
-    private boolean isArchive(FileObject fo) {
+    private static boolean isArchive(FileObject fo) {
         FileSystemManager manager = fo.getFileSystem().getFileSystemManager();
 
         return !NON_ARCHIVE_SCHEMES.contains(fo.getName().getExtension())
@@ -371,11 +372,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         }
 
         FileSystemManager manager = fo.getFileSystem().getFileSystemManager();
-        FileObject layered;
         FileSystem fs = null;
 
         try {
-            layered = manager.createFileSystem(fo.getName().getExtension(), fo);
+            FileObject layered = manager.createFileSystem(fo.getName().getExtension(), fo);
             fs = layered.getFileSystem();
 
             listChildren(layered);
@@ -451,10 +451,11 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 inverseMap.put(checksum.getFilename(), checksum);
             }
 
-            if (queue != null && config.getChecksumTypes().contains(ChecksumType.md5)) {
+            if (queue != null && config.getChecksumTypes()
+                    .containsAll(Collections.unmodifiableList(Arrays.asList(md5, sha256)))) {
                 try {
                     for (Checksum checksum : checksums) {
-                        if (checksum.getType() == ChecksumType.md5) {
+                        if (checksum.getType() == md5 || checksum.getType() == sha256) {
                             queue.put(checksum);
                         }
                     }

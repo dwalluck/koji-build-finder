@@ -17,6 +17,9 @@ package org.jboss.pnc.build.finder.core;
 
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+import static org.jboss.pnc.build.finder.core.BuildSystem.pnc;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
+import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,6 +79,10 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
     private static final String BUILDS_FILENAME = "builds.json";
 
     private static final String CHECKSUMS_FILENAME_BASENAME = "checksums-";
+
+    private static final int MD5_LENGTH = 32;
+
+    private static final int SHA256_LENGTH = 64;
 
     private final ClientSession session;
 
@@ -344,9 +351,9 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                 continue;
             }
 
-            // XXX: Only works for md5, and we can't look up RPMs by checksum
+            // XXX: Only works for MD5, and we can't look up RPMs by checksum
             // XXX: We can use other APIs to get other checksums, but they are not cached as part of this object
-            if (checksum.getType() == ChecksumType.md5) {
+            if (checksum.getType() == md5) {
                 String actual = rpm.getPayloadhash();
 
                 if (!checksum.getValue().equals(actual)) {
@@ -583,8 +590,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
             List<KojiArchiveInfo> cacheArchiveInfos;
 
             if (filenames.stream().anyMatch(filename -> filename.endsWith(".rpm"))) {
-                if (cacheManager == null
-                        || (cacheRpmBuildInfo = rpmCaches.get(ChecksumType.md5).get(checksum.getValue())) == null) {
+                if (cacheManager == null || (cacheRpmBuildInfo = rpmCaches.get(md5).get(checksum.getValue())) == null) {
                     LOGGER.debug("Add RPM entry {} to list", entry);
                     rpmEntries.add(entry);
                 } else {
@@ -596,7 +602,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                 ListKojiArchiveInfoProtobufWrapper wrapper = null;
 
                 if (checksumCaches != null) {
-                    wrapper = checksumCaches.get(ChecksumType.md5).get(checksum.getValue());
+                    wrapper = checksumCaches.get(checksum.getType()).get(checksum.getValue());
                 }
 
                 if (cacheManager == null || wrapper == null) {
@@ -690,7 +696,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
             if (archiveList.isEmpty()) {
                 if (cacheManager != null) {
-                    checksumCaches.get(ChecksumType.md5).put(queryChecksum, new ListKojiArchiveInfoProtobufWrapper());
+                    putChecksumInCache(queryChecksum);
                 }
             } else {
                 String archiveChecksum = archiveList.get(0).getChecksum();
@@ -703,8 +709,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                 }
 
                 if (cacheManager != null) {
-                    checksumCaches.get(ChecksumType.md5)
-                            .put(queryChecksum, new ListKojiArchiveInfoProtobufWrapper(archiveList));
+                    putChecksumInCache(queryChecksum);
                 }
             }
         }
@@ -1037,6 +1042,21 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
         return Collections.unmodifiableMap(builds);
     }
 
+    private void putChecksumInCache(String queryChecksum) throws KojiClientException {
+        int length = queryChecksum.length();
+
+        switch (length) {
+            case MD5_LENGTH:
+                checksumCaches.get(md5).put(queryChecksum, new ListKojiArchiveInfoProtobufWrapper());
+                break;
+            case SHA256_LENGTH:
+                checksumCaches.get(sha256).put(queryChecksum, new ListKojiArchiveInfoProtobufWrapper());
+                break;
+            default:
+                throw new KojiClientException("Unknown checksum length " + length + " for checksum " + queryChecksum);
+        }
+    }
+
     private void markFound(Entry<Checksum, Collection<String>> entry) {
         foundChecksums.put(entry.getKey(), new ArrayList<>(entry.getValue()));
         notFoundChecksums.remove(entry.getKey());
@@ -1154,7 +1174,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                 if (value == null) {
                     finished = true;
                 } else {
-                    if (cksum.getType() == ChecksumType.md5) {
+                    if (cksum.getType() == md5 || cksum.getType() == sha256) {
                         String filename = cksum.getFilename();
                         localchecksumMap.put(cksum, filename);
                     }
@@ -1165,7 +1185,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
             Map<BuildSystemInteger, KojiBuild> kojiBuildsNew;
             Map<Checksum, Collection<String>> map = localchecksumMap.asMap();
 
-            if (config.getBuildSystems().contains(BuildSystem.pnc) && config.getPncURL() != null) {
+            if (config.getBuildSystems().contains(pnc) && config.getPncURL() != null) {
                 try {
                     pncBuildsNew = pncBuildFinder.findBuildsPnc(map);
                 } catch (RemoteResourceException e) {
