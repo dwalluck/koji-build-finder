@@ -18,6 +18,8 @@ package org.jboss.pnc.build.finder.core.it;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
+import static org.jboss.pnc.build.finder.core.ChecksumType.sha1;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 
 import java.io.File;
@@ -89,12 +91,12 @@ class FileErrorIT extends AbstractKojiIT {
                             cksums -> assertThat(cksums).hasSize(3)
                                     .extracting("filename")
                                     .containsOnly("jboss-jaxb-intros-1.0.2.GA-sources.jar"));
-            assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
+            assertThat(analyzer.getChecksums(md5)).hasSize(1)
                     .hasEntrySatisfying(
                             "ac2a6ab1fbf6afba37789e2e88a916a6",
                             cksums -> assertThat(cksums).extracting("filename", "size")
                                     .containsExactly(tuple("jboss-jaxb-intros-1.0.2.GA-sources.jar", 29537L)));
-            assertThat(analyzer.getChecksums(ChecksumType.sha1)).hasSize(1)
+            assertThat(analyzer.getChecksums(sha1)).hasSize(1)
                     .hasEntrySatisfying(
                             "ab2f490dd83035bee3a719d2118cbab90508082f",
                             cksums -> assertThat(cksums).singleElement()

@@ -16,6 +16,7 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,12 +46,12 @@ class CompletedBuildTest {
     @Test
     void testCompletedBuilds() throws KojiClientException, MalformedURLException {
         Checksum checksum1 = new Checksum(
-                ChecksumType.md5,
+                md5,
                 "46148535be98c75c900837ecea491c71",
                 "hibernate-validator-6.0.10.Final-redhat-1.pom",
                 19544L);
         Checksum checksum2 = new Checksum(
-                ChecksumType.md5,
+                md5,
                 "c723630b4a215ffa05106e5c8555871c",
                 "hibernate-validator-cdi-6.0.10.Final-redhat-1.pom",
                 8591L);

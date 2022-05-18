@@ -18,6 +18,7 @@ package org.jboss.pnc.build.finder.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_NAME;
 import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_VERSION;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 import static org.jboss.pnc.enums.BuildType.MVN;
 import static org.mockito.Mockito.when;
 
@@ -82,9 +83,9 @@ class PncBuildFinderTest {
     @Test
     void testFindOneBuildInPnc() throws RemoteResourceException {
         // given
-        String md5 = "md5-checksum";
+        String md5String = "md5-checksum";
         LocalFile filename = new LocalFile("empty.jar", -1L);
-        Checksum checksum = new Checksum(ChecksumType.md5, md5, filename);
+        Checksum checksum = new Checksum(md5, md5String, filename);
         PncClient pncClient = Mockito.mock(PncClient.class);
         String buildId = "100";
 
@@ -108,13 +109,13 @@ class PncBuildFinderTest {
         Artifact artifact = Artifact.builder()
                 .id("100")
                 .identifier("org.empty:empty")
-                .md5(md5)
+                .md5(md5String)
                 .size(filename.getSize())
                 .filename(filename.getFilename())
                 .build(build)
                 .build();
 
-        when(pncClient.getArtifactsByMd5(md5)).thenReturn(createArtifactsRemoteCollection(artifact));
+        when(pncClient.getArtifactsByMd5(md5String)).thenReturn(createArtifactsRemoteCollection(artifact));
         when(pncClient.getBuildPushResult(buildId))
                 .thenThrow(new RemoteResourceNotFoundException(new ClientErrorException(Response.Status.NOT_FOUND)));
 
@@ -134,7 +135,7 @@ class PncBuildFinderTest {
         List<KojiLocalArchive> foundArchives = foundBuild.getArchives();
 
         assertThat(foundArchives).hasSize(1);
-        assertThat(foundArchives.get(0).getArchive().getChecksum()).isEqualTo(md5);
+        assertThat(foundArchives.get(0).getArchive().getChecksum()).isEqualTo(md5String);
     }
 
     @Test
@@ -142,7 +143,7 @@ class PncBuildFinderTest {
         // given
         String givenMd5 = "md5-different";
         LocalFile filename = new LocalFile("empty.jar", -1L);
-        Checksum checksum = new Checksum(ChecksumType.md5, givenMd5, filename);
+        Checksum checksum = new Checksum(md5, givenMd5, filename);
 
         PncClient pncClient = Mockito.mock(PncClient.class);
 

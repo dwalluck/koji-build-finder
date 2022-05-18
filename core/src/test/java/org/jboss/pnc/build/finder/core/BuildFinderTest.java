@@ -16,6 +16,8 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
+import static org.jboss.pnc.build.finder.core.ChecksumType.sha1;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +43,7 @@ class BuildFinderTest {
 
     @Test
     void testDirectory(@TempDir File folder) throws IOException {
-        ChecksumType checksumType = ChecksumType.sha1;
+        ChecksumType checksumType = sha1;
         BuildConfig config = new BuildConfig();
 
         config.setChecksumTypes(EnumSet.of(checksumType));
@@ -59,7 +61,7 @@ class BuildFinderTest {
 
     @Test
     void testLoadChecksumsFile(@TempDir File folder) throws IOException {
-        ChecksumType checksumType = ChecksumType.md5;
+        ChecksumType checksumType = md5;
         BuildConfig config = new BuildConfig();
 
         config.setChecksumTypes(EnumSet.of(checksumType));

@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.InstanceOfAssertFactories.COLLECTION;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -67,7 +68,7 @@ class RpmNvrNotFoundIT extends AbstractRpmIT {
                         cksums -> assertThat(cksums).anySatisfy(
                                 checksum -> assertThat(checksum).extracting("value", as(STRING))
                                         .isEqualTo("aa585b870f59ef457f26fa32a0daf923")));
-        assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
+        assertThat(analyzer.getChecksums(md5)).hasSize(1)
                 .hasEntrySatisfying(
                         "aa585b870f59ef457f26fa32a0daf923",
                         cksums -> assertThat(cksums).extracting("filename", "size")
@@ -96,7 +97,7 @@ class RpmNvrNotFoundIT extends AbstractRpmIT {
                 .singleElement()
                 .isEqualTo(
                         tuple(
-                                ChecksumType.md5,
+                                md5,
                                 "aa585b870f59ef457f26fa32a0daf923",
                                 "java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm",
                                 258129L));

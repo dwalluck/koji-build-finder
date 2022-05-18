@@ -17,6 +17,7 @@ package org.jboss.pnc.build.finder.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.contentOf;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 
 import java.io.File;
@@ -115,7 +116,7 @@ class BuildConfigTest {
 
         assertThat(bc.getArchiveTypes()).containsExactly("jar");
         assertThat(bc.getChecksumOnly()).isTrue();
-        assertThat(bc.getChecksumTypes()).containsExactly(ChecksumType.md5);
+        assertThat(bc.getChecksumTypes()).containsExactly(md5);
 
         List<String> excludes = Collections
                 .unmodifiableList(bc.getExcludes().stream().map(Pattern::pattern).collect(Collectors.toList()));
@@ -183,7 +184,7 @@ class BuildConfigTest {
                 "war",
                 "xml");
         assertThat(bc.getChecksumOnly()).isFalse();
-        assertThat(bc.getChecksumTypes()).containsExactly(ChecksumType.md5);
+        assertThat(bc.getChecksumTypes()).containsExactly(md5);
         assertThat(bc.getKojiHubURL()).isNull();
         assertThat(bc.getKojiWebURL()).isNull();
 

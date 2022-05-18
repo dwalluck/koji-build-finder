@@ -16,6 +16,7 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,12 +46,12 @@ class SkipImportTest {
     @Test
     void testMultiImportsKeepEarliest() throws KojiClientException, MalformedURLException {
         Checksum checksum1 = new Checksum(
-                ChecksumType.md5,
+                md5,
                 "2e7e85f0ee97afde716231a6c792492a",
                 "commons-lang-2.6-redhat-2.jar",
                 287477L);
         Checksum checksum2 = new Checksum(
-                ChecksumType.md5,
+                md5,
                 "3b6a309e0dd4f488fd0cce429b44d067",
                 "commons-lang-2.6-redhat-2.pom",
                 17931L);

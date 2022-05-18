@@ -17,6 +17,8 @@ package org.jboss.pnc.build.finder.core;
 
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+import static org.jboss.pnc.build.finder.core.ChecksumType.fromHexStringLength;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.io.File;
 import java.io.IOException;
@@ -349,7 +351,7 @@ public class BuildFinder
 
             // XXX: Only works for md5, and we can't look up RPMs by checksum
             // XXX: We can use other APIs to get other checksums, but they are not cached as part of this object
-            if (checksum.getType() == ChecksumType.md5) {
+            if (checksum.getType() == md5) {
                 String actual = rpm.getPayloadhash();
 
                 if (!checksum.getValue().equals(actual)) {
@@ -586,8 +588,7 @@ public class BuildFinder
             List<KojiArchiveInfo> cacheArchiveInfos;
 
             if (filenames.stream().anyMatch(filename -> filename.endsWith(".rpm"))) {
-                if (cacheManager == null
-                        || (cacheRpmBuildInfo = rpmCaches.get(ChecksumType.md5).get(checksum.getValue())) == null) {
+                if (cacheManager == null || (cacheRpmBuildInfo = rpmCaches.get(md5).get(checksum.getValue())) == null) {
                     LOGGER.debug("Add RPM entry {} to list", entry);
                     rpmEntries.add(entry);
                 } else {
@@ -599,7 +600,7 @@ public class BuildFinder
                 ListKojiArchiveInfoProtobufWrapper wrapper = null;
 
                 if (checksumCaches != null) {
-                    wrapper = checksumCaches.get(ChecksumType.md5).get(checksum.getValue());
+                    wrapper = checksumCaches.get(checksum.getType()).get(checksum.getValue());
                 }
 
                 if (cacheManager == null || wrapper == null) {
@@ -693,7 +694,8 @@ public class BuildFinder
 
             if (archiveList.isEmpty()) {
                 if (cacheManager != null) {
-                    checksumCaches.get(ChecksumType.md5).put(queryChecksum, new ListKojiArchiveInfoProtobufWrapper());
+                    checksumCaches.get(fromHexStringLength(queryChecksum))
+                            .put(queryChecksum, new ListKojiArchiveInfoProtobufWrapper());
                 }
             } else {
                 String archiveChecksum = archiveList.get(0).getChecksum();
@@ -706,7 +708,7 @@ public class BuildFinder
                 }
 
                 if (cacheManager != null) {
-                    checksumCaches.get(ChecksumType.md5)
+                    checksumCaches.get(fromHexStringLength(queryChecksum))
                             .put(queryChecksum, new ListKojiArchiveInfoProtobufWrapper(archiveList));
                 }
             }
@@ -1157,7 +1159,7 @@ public class BuildFinder
                 if (value == null) {
                     finished = true;
                 } else {
-                    if (cksum.getType() == ChecksumType.md5) {
+                    if (cksum.getType() == md5) {
                         String filename = cksum.getFilename();
                         localchecksumMap.put(cksum, filename);
                     }

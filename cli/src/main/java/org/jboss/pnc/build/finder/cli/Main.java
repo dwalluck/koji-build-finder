@@ -19,6 +19,7 @@ import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldYellow;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.io.File;
 import java.io.IOException;
@@ -653,8 +654,8 @@ public final class Main implements Callable<Void> {
                 System.exit(1);
             }
         } else {
-            if (!checksumTypes.contains(ChecksumType.md5)) {
-                LOGGER.error("To find builds, you must enable checksum type: {}", boldRed(ChecksumType.md5));
+            if (!checksumTypes.contains(md5)) {
+                LOGGER.error("To find builds, you must enable checksum type: {}", boldRed(md5));
                 System.exit(1);
             }
 

@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.InstanceOfAssertFactories.COLLECTION;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -61,7 +62,7 @@ class RpmBuildIdNotFoundIT extends AbstractRpmIT {
         assertThat(checksums).hasSize(3);
         assertThat(builds).hasSize(1);
         assertThat(fileErrors).isEmpty();
-        assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
+        assertThat(analyzer.getChecksums(md5)).hasSize(1)
                 .hasEntrySatisfying(
                         "84ed0982a77b1c3a0c093409eb19c8ab",
                         localFiles -> assertThat(localFiles).extracting("filename", "size")
@@ -92,12 +93,7 @@ class RpmBuildIdNotFoundIT extends AbstractRpmIT {
                 .singleElement(as(COLLECTION))
                 .extracting("type", "value", "filename", "fileSize")
                 .singleElement()
-                .isEqualTo(
-                        tuple(
-                                ChecksumType.md5,
-                                "84ed0982a77b1c3a0c093409eb19c8ab",
-                                "libdnf-0.48.0-4.fc33.x86_64.rpm",
-                                605175L));
+                .isEqualTo(tuple(md5, "84ed0982a77b1c3a0c093409eb19c8ab", "libdnf-0.48.0-4.fc33.x86_64.rpm", 605175L));
 
         LOGGER.info("Checksums size: {}", checksums.size());
         LOGGER.info("Builds size: {}", builds.size());

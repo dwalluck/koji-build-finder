@@ -17,6 +17,7 @@ package org.jboss.pnc.build.finder.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.INTEGER;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,7 +98,7 @@ class FileObjectTrackingTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.checksumFiles();
 
-        assertThat(checksums.get(ChecksumType.md5).size()).isEqualTo(25);
+        assertThat(checksums.get(md5).size()).isEqualTo(25);
 
         Object sCounter = getFileSystemCounter();
 

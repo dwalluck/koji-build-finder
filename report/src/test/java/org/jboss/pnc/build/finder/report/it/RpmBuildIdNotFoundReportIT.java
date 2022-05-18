@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.contentOf;
 import static org.assertj.core.api.InstanceOfAssertFactories.COLLECTION;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +70,7 @@ class RpmBuildIdNotFoundReportIT extends AbstractRpmIT {
         LOGGER.debug("builds is {}", builds);
 
         assertThat(fileErrors).isEmpty();
-        assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
+        assertThat(analyzer.getChecksums(md5)).hasSize(1)
                 .hasEntrySatisfying(
                         "84ed0982a77b1c3a0c093409eb19c8ab",
                         cksums -> assertThat(cksums).singleElement()
@@ -101,11 +102,7 @@ class RpmBuildIdNotFoundReportIT extends AbstractRpmIT {
                 .extracting("checksums", as(COLLECTION))
                 .singleElement()
                 .extracting("type", "value", "filename", "fileSize")
-                .containsExactly(
-                        ChecksumType.md5,
-                        "84ed0982a77b1c3a0c093409eb19c8ab",
-                        "libdnf-0.48.0-4.fc33.x86_64.rpm",
-                        605175L);
+                .containsExactly(md5, "84ed0982a77b1c3a0c093409eb19c8ab", "libdnf-0.48.0-4.fc33.x86_64.rpm", 605175L);
 
         LOGGER.info("Checksums size: {}", checksums.size());
         LOGGER.info("Builds size: {}", builds.size());

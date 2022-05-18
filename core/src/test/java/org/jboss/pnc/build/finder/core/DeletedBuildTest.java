@@ -16,6 +16,7 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,7 +46,7 @@ class DeletedBuildTest {
     @Test
     void testDeletedBuild() throws KojiClientException, MalformedURLException {
         Checksum checksum = new Checksum(
-                ChecksumType.md5,
+                md5,
                 "a8c05c0ff2b61c3e205fb21010581bbe",
                 "infinispan-bom-9.4.16.Final-redhat-00001.pom",
                 23476L);

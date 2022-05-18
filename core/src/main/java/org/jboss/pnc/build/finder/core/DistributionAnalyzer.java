@@ -18,6 +18,7 @@ package org.jboss.pnc.build.finder.core;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.io.File;
 import java.io.IOException;
@@ -192,7 +193,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                         throw e;
                                     }
 
-                                    if (queue != null && checksumType == ChecksumType.md5) {
+                                    if (queue != null && checksumType == md5) {
                                         for (Entry<String, LocalFile> entry : entries) {
                                             try {
                                                 Checksum checksum = new Checksum(
@@ -454,10 +455,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 inverseMap.put(checksum.getFilename(), checksum);
             }
 
-            if (queue != null && config.getChecksumTypes().contains(ChecksumType.md5)) {
+            if (queue != null && config.getChecksumTypes().contains(md5)) {
                 try {
                     for (Checksum checksum : checksums) {
-                        if (checksum.getType() == ChecksumType.md5) {
+                        if (checksum.getType() == md5) {
                             queue.put(checksum);
                         }
                     }

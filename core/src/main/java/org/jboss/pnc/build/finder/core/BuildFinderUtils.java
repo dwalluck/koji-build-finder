@@ -15,8 +15,11 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static org.apache.commons.codec.binary.Hex.encodeHexString;
+import static org.apache.commons.codec.digest.DigestUtils.getDigest;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,8 +31,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
@@ -71,9 +72,8 @@ public final class BuildFinderUtils {
 
         config.getChecksumTypes()
                 .forEach(
-                        checksumType -> emptyDigests.put(
-                                checksumType,
-                                Hex.encodeHexString(DigestUtils.getDigest(ChecksumType.md5.getAlgorithm()).digest())));
+                        checksumType -> emptyDigests
+                                .put(checksumType, encodeHexString(getDigest(checksumType.getAlgorithm()).digest())));
     }
 
     public boolean shouldSkipChecksum(Checksum checksum, Collection<String> filenames) {
@@ -251,8 +251,7 @@ public final class BuildFinderUtils {
             for (FileError fileError : distributionAnalyzer.getFileErrors()) {
                 String filename = fileError.getFilename();
                 Collection<Checksum> fileChecksums = distributionAnalyzer.getFiles().get(filename);
-                Optional<Checksum> checksum = Checksum.findByType(fileChecksums, ChecksumType.md5);
-
+                Optional<Checksum> checksum = Checksum.findByType(fileChecksums, md5);
                 checksum.ifPresent(
                         cksum -> addArchiveWithoutBuild(buildZero, cksum, Collections.singletonList(filename)));
             }

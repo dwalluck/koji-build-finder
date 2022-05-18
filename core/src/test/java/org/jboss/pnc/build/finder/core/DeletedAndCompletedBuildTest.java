@@ -16,6 +16,7 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,12 +46,12 @@ class DeletedAndCompletedBuildTest {
     @Test
     void testDeletedAndCompleteBuilds() throws KojiClientException, MalformedURLException {
         Checksum checksum1 = new Checksum(
-                ChecksumType.md5,
+                md5,
                 "59ef4fa1ef35fc0fc074dbfab196c0cd",
                 "wildfly-core-security-7.5.9.Final-redhat-2.jar",
                 22827L);
         Checksum checksum2 = new Checksum(
-                ChecksumType.md5,
+                md5,
                 "36f95ca365830463f581d576eb2f1f84",
                 "wildfly-core-security-7.5.9.Final-redhat-2.pom",
                 3105L);

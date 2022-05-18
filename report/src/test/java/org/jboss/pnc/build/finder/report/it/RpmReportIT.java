@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.contentOf;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +66,7 @@ class RpmReportIT extends AbstractRpmIT {
         assertThat(checksums).hasSize(3);
         assertThat(builds).hasSize(2);
         assertThat(fileErrors).isEmpty();
-        assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
+        assertThat(analyzer.getChecksums(md5)).hasSize(1)
                 .hasEntrySatisfying(
                         "16605e0013938a5e21ffdf777cfa86ce",
                         localFiles -> assertThat(localFiles).extracting("filename", "size")
