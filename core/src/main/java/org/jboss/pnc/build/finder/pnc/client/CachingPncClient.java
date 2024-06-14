@@ -34,18 +34,23 @@ import org.jboss.pnc.dto.ProductVersion;
  * @author Jakub Bartecek
  */
 public class CachingPncClient implements PncClient {
+    private static final int BUILD_PUSH_RESULT_CACHE_SIZE = 712;
+
+    private static final int PRODUCT_VERSION_CACHE_SIZE = 144;
+
+    private static final int ARTIFACT_CACHE_SIZE = 14459;
 
     private final PncClient pncClient;
 
     private final Map<String, ArtifactStaticRemoteCollection> artifactCache;
 
-    private final Map<String, BuildPushResult> getBuildPushResultCache = new HashMap<>();
+    private final Map<String, BuildPushResult> getBuildPushResultCache = new HashMap<>(BUILD_PUSH_RESULT_CACHE_SIZE);
 
-    private final Map<String, ProductVersion> getProductVersionCache = new HashMap<>();
+    private final Map<String, ProductVersion> getProductVersionCache = new HashMap<>(PRODUCT_VERSION_CACHE_SIZE);
 
     public CachingPncClient(BuildConfig config, BasicCacheContainer cacheManager) {
         if (cacheManager == null) {
-            artifactCache = new HashMap<>();
+            artifactCache = new HashMap<>(ARTIFACT_CACHE_SIZE);
         } else {
             artifactCache = cacheManager.getCache("artifact-pnc");
         }
@@ -54,7 +59,7 @@ public class CachingPncClient implements PncClient {
 
     public CachingPncClient(PncClient pncClient, BasicCacheContainer cacheManager) {
         if (cacheManager == null) {
-            artifactCache = new HashMap<>();
+            artifactCache = new HashMap<>(ARTIFACT_CACHE_SIZE);
         } else {
             artifactCache = cacheManager.getCache("artifact-pnc");
         }

@@ -120,6 +120,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private static final Pattern SPACE_PATTERN = Pattern.compile("\\s+");
 
+    private static final int FILE_ERRORS_SIZE = 2;
+
     private final List<String> inputs;
 
     private final MultiValuedMap<String, Checksum> inverseMap;
@@ -200,7 +202,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
         level = new AtomicInteger();
         pool = Executors.newWorkStealingPool();
-        fileErrors = new ArrayList<>();
+        fileErrors = new ArrayList<>(FILE_ERRORS_SIZE);
     }
 
     private static boolean isJavaArchive(FileObject fo) {
@@ -501,6 +503,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         } else {
             sb.append(getAllErrorMessages(t));
         }
+
+        System.out.println("XXX:getMessage: " + sb.length());
 
         return sb.toString();
     }

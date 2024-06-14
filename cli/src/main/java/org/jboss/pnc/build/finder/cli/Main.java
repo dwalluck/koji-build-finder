@@ -101,6 +101,7 @@ import picocli.CommandLine.Spec;
         versionProvider = Main.ManifestVersionProvider.class)
 public final class Main implements Callable<Void> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+    public static final int NEWMAP_SIZE = 122416;
 
     private ExecutorService pool;
 
@@ -707,7 +708,7 @@ public final class Main implements Callable<Void> {
                         finder = new BuildFinder(session, config, analyzer, cacheManager);
                     }
 
-                    Map<Checksum, Collection<String>> newMap = new HashMap<>();
+                    Map<Checksum, Collection<String>> newMap = new HashMap<>(NEWMAP_SIZE);
 
                     for (ChecksumType checksumType : checksumTypes) {
                         Map<String, Collection<LocalFile>> map = checksums.get(checksumType).asMap();

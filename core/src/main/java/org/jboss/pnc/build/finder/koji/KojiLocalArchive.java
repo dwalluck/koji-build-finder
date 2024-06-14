@@ -27,6 +27,8 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiRpmInfo;
 
 public class KojiLocalArchive {
+    private static final int CHECKSUMS_SIZE = 4;
+
     private KojiArchiveInfo archive;
 
     private KojiRpmInfo rpm;
@@ -41,7 +43,7 @@ public class KojiLocalArchive {
 
     public KojiLocalArchive() {
         this.filenames = new TreeSet<>();
-        this.checksums = new HashSet<>();
+        this.checksums = new HashSet<>(CHECKSUMS_SIZE);
         this.unmatchedFilenames = new TreeSet<>();
     }
 

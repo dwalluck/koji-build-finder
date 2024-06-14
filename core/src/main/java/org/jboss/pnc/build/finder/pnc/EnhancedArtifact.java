@@ -28,20 +28,22 @@ import org.jboss.pnc.dto.Artifact;
  * @author Jakub Bartecek
  */
 public class EnhancedArtifact {
+    private static final int FILENAMES_SIZE = 1;
+
     private Artifact artifact;
 
     private Checksum checksum;
 
-    private Collection<String> fileNames;
+    private Collection<String> filenames;
 
     public EnhancedArtifact() {
-        fileNames = new ArrayList<>();
+        filenames = new ArrayList<>(FILENAMES_SIZE);
     }
 
-    public EnhancedArtifact(Artifact artifact, Checksum checksum, Collection<String> fileNames) {
+    public EnhancedArtifact(Artifact artifact, Checksum checksum, Collection<String> filenames) {
         this.artifact = artifact;
         this.checksum = checksum;
-        this.fileNames = fileNames;
+        this.filenames = filenames;
     }
 
     public Optional<Artifact> getArtifact() {
@@ -61,10 +63,10 @@ public class EnhancedArtifact {
     }
 
     public Collection<String> getFilenames() {
-        return fileNames;
+        return filenames;
     }
 
     public void setFilenames(Collection<String> filenames) {
-        this.fileNames = filenames;
+        this.filenames = filenames;
     }
 }

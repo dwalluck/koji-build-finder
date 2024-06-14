@@ -87,6 +87,20 @@ public class BuildFinder
 
     private static final String CHECKSUMS_FILENAME_BASENAME = "checksums-";
 
+    private static final int ALL_KOJI_BUILDS_SIZE = 16; // 2447; XXX: Deleted{,AndCompleted}BuildTest fails
+
+    private static final int NOT_FOUND_CHECKSUMS_SIZE = 7158;
+
+    private static final int BUILDS_SIZE = 1702;
+
+    private static final int ALL_BUILDS_SIZE = 2732;
+
+    private static final int CHECKSUMS_SIZE = 24106;
+
+    private static final int LOCAL_CHECKSUM_MAP_SIZE = 24496;
+
+    private static final int FOUND_CHECKSUMS_SIZE = 6816;
+
     private final ClientSession session;
 
     private final BuildConfig config;
@@ -148,7 +162,7 @@ public class BuildFinder
         this.outputDirectory = new File("");
         this.analyzer = analyzer;
         this.cacheManager = cacheManager;
-        this.allKojiBuilds = new HashMap<>();
+        this.allKojiBuilds = new HashMap<>(ALL_KOJI_BUILDS_SIZE);
 
         this.buildFinderUtils = new BuildFinderUtils(config, analyzer, session);
         this.pncBuildFinder = new PncBuildFinder(pncclient, buildFinderUtils, config);
@@ -167,8 +181,8 @@ public class BuildFinder
             }
         }
 
-        this.foundChecksums = new HashMap<>();
-        this.notFoundChecksums = new HashMap<>();
+        this.foundChecksums = new HashMap<>(FOUND_CHECKSUMS_SIZE);
+        this.notFoundChecksums = new HashMap<>(NOT_FOUND_CHECKSUMS_SIZE);
 
         initBuilds();
     }
@@ -182,7 +196,7 @@ public class BuildFinder
     }
 
     private void initBuilds() {
-        builds = new HashMap<>();
+        builds = new HashMap<>(BUILDS_SIZE);
         KojiBuild build = BuildFinderUtils.createKojiBuildZero();
         builds.put(new BuildSystemInteger(0), build);
     }
@@ -1252,11 +1266,11 @@ public class BuildFinder
     @Override
     public Map<BuildSystemInteger, KojiBuild> call() throws KojiClientException {
         Instant startTime = Instant.now();
-        MultiValuedMap<Checksum, String> localchecksumMap = new ArrayListValuedHashMap<>();
-        Collection<Checksum> checksums = new HashSet<>();
+        MultiValuedMap<Checksum, String> localChecksumMap = new ArrayListValuedHashMap<>(LOCAL_CHECKSUM_MAP_SIZE);
+        Collection<Checksum> checksums = new HashSet<>(CHECKSUMS_SIZE);
         Checksum checksum;
         boolean finished = false;
-        Map<BuildSystemInteger, KojiBuild> allBuilds = new HashMap<>();
+        Map<BuildSystemInteger, KojiBuild> allBuilds = new HashMap<>(ALL_BUILDS_SIZE);
 
         while (!finished) {
             try {
@@ -1284,14 +1298,14 @@ public class BuildFinder
                 } else {
                     if (cksum.getType() == ChecksumType.md5) {
                         String filename = cksum.getFilename();
-                        localchecksumMap.put(cksum, filename);
+                        localChecksumMap.put(cksum, filename);
                     }
                 }
             }
 
             FindBuildsResult pncBuildsNew;
             Map<BuildSystemInteger, KojiBuild> kojiBuildsNew;
-            Map<Checksum, Collection<String>> map = localchecksumMap.asMap();
+            Map<Checksum, Collection<String>> map = localChecksumMap.asMap();
 
             if (config.getBuildSystems().contains(BuildSystem.pnc) && config.getPncURL() != null) {
                 // The preferred checksumType for PNC is sha256, so replace the original map with a preferred map
@@ -1383,7 +1397,7 @@ public class BuildFinder
                 allBuilds.putAll(kojiBuildsNew);
             }
 
-            localchecksumMap.clear();
+            localChecksumMap.clear();
             checksums.clear();
         }
 

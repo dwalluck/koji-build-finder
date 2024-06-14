@@ -31,9 +31,13 @@ public class FindBuildsResult {
 
     private final Map<Checksum, Collection<String>> notFoundChecksums;
 
+    private static final int FOUND_BUILDS_SIZE = 1007;
+
+    private static final int NOT_FOUND_CHECKSUMS_SIZE = 7158;
+
     public FindBuildsResult() {
-        this.foundBuilds = new HashMap<>();
-        this.notFoundChecksums = new HashMap<>();
+        this.foundBuilds = new HashMap<>(FOUND_BUILDS_SIZE);
+        this.notFoundChecksums = new HashMap<>(NOT_FOUND_CHECKSUMS_SIZE);
     }
 
     public FindBuildsResult(
