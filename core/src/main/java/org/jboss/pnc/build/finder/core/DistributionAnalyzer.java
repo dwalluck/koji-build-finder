@@ -119,8 +119,6 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private static final String LICENSES_FILENAME_BASENAME = "licenses";
 
-    private static final Pattern SPACE_PATTERN = Pattern.compile("\\s+");
-
     private final List<String> inputs;
 
     private final MultiValuedMap<String, Checksum> inverseMap;
@@ -662,7 +660,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 licenseInfos = addLicensesFromPom(localFile, POM_XML);
             } else if (LicenseUtils.isManifestMfFileName(localFile)) {
                 licenseInfos = addLicensesFromBundleLicense(localFile);
-            } else if (LicenseUtils.isLicenseFileName(localFile)) {
+            } else if (LicenseUtils.isLicenseFileName(localFile.getName().getBaseName())) {
                 licenseInfos = addLicenseFromTextFile(jar, localFile);
             } else {
                 licenseInfos = Collections.emptyList();
@@ -671,7 +669,17 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             licenseInfos = Collections.emptyList();
         }
 
-        return licenseInfos;
+        List<LicenseInfo> ret = new ArrayList<>(licenseInfos);
+
+        for (LicenseInfo info : licenseInfos) {
+            ret.addAll(handleRelativeURL(jar, localFile, info));
+        }
+
+        if (LOGGER.isWarnEnabled()) {
+            licenseInfos.forEach(licenseInfo -> checkMissingMapping(localFile, licenseInfo));
+        }
+
+        return Collections.unmodifiableList(ret);
     }
 
     private static List<LicenseInfo> addLicenseFromTextFile(FileObject jar, FileObject licenseFile) throws IOException {
@@ -681,7 +689,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 jar.getName().getRelativeName(licenseFile.getName()),
                 LicenseUtils.getCurrentLicenseId(licenseId),
                 TEXT);
-        return List.of(licenseInfo);
+        return Collections.singletonList(licenseInfo);
     }
 
     private static List<LicenseInfo> addLicensesFromBundleLicense(FileObject fileObject) throws IOException {
@@ -697,7 +705,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             licenses.add(licenseInfo);
         }
 
-        return licenses;
+        return Collections.unmodifiableList(licenses);
     }
 
     private List<LicenseInfo> addLicensesFromPom(FileObject fileObject, LicenseSource source) throws IOException {
@@ -723,11 +731,74 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                         .collect(Collectors.toUnmodifiableSet())));
             }
 
-            return licenseInfos;
+            return Collections.unmodifiableList(licenseInfos);
         } catch (XmlPullParserException | InterpolationException e) {
             LOGGER.warn("Unable to read licenses from file {}: {}", red(fileObject), red(getAllErrorMessages(e)));
             throw new IOException(e);
         }
+    }
+
+    private static void checkMissingMapping(FileObject localFile, LicenseInfo licenseInfo) {
+        if (!NOASSERTION.equals(licenseInfo.getSpdxLicenseId())) {
+            return;
+        }
+
+        String name = licenseInfo.getName();
+        String url = licenseInfo.getUrl();
+
+        if (name == null && url == null) {
+            return;
+        }
+
+        if (url == null && LicenseUtils.isLicenseFileName(name)) {
+            return;
+        }
+
+        LOGGER.warn(
+                "Missing SPDX license mapping for name: {}, URL: {}, filename: {}",
+                red(name),
+                red(url),
+                red(localFile));
+
+    }
+
+    private List<LicenseInfo> handleRelativeURL(FileObject jar, FileObject localFile, LicenseInfo licenseInfo) {
+        String spdxLicenseId = licenseInfo.getSpdxLicenseId();
+
+        if (!NOASSERTION.equals(spdxLicenseId)) {
+            return Collections.emptyList();
+        }
+
+        String name = licenseInfo.getName();
+        String url = licenseInfo.getUrl();
+
+        if (name == null || isUrl(url)) {
+            return Collections.emptyList();
+        }
+
+        List<LicenseInfo> licenseInfos = null;
+
+        try {
+            // If the URL is absent, consider the possibility that the name refers to a file inside the JAR
+            FileObject licenseFile = jar.resolveFile(name);
+
+            if (LicenseUtils.isLicenseFileName(licenseFile.getName().getBaseName())) {
+                LOGGER.debug("Found relative license file at {}", licenseFile);
+                licenseInfos = addLicensesFromJar(jar, licenseFile);
+            }
+        } catch (FileSystemException e) {
+            // ignore
+        }
+
+        if (licenseInfos == null) {
+            LOGGER.warn(
+                    "Missing SPDX license mapping for name: {}, URL: {}, filename: {}",
+                    red(name),
+                    red(url),
+                    red(localFile));
+        }
+
+        return licenseInfos != null ? licenseInfos : Collections.emptyList();
     }
 
     private void putLicenses(String pomOrJarFile, Collection<LicenseInfo> licenseInfos) {
@@ -737,19 +808,6 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             existingLicenses.addAll(licenseInfos);
         } else {
             licensesMap.put(pomOrJarFile, licenseInfos);
-        }
-
-        if (LOGGER.isWarnEnabled()) {
-            for (LicenseInfo licenseInfo : licenseInfos) {
-                if (licenseInfo.getSpdxLicenseId().equals(NOASSERTION)) {
-                    String name = licenseInfo.getName();
-                    String url = licenseInfo.getUrl();
-
-                    if (name != null || isUrl(url)) {
-                        LOGGER.warn("Missing SPDX license mapping for name: {}, URL: {}", red(name), red(url));
-                    }
-                }
-            }
         }
     }
 
