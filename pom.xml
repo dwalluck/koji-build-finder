@@ -157,6 +157,7 @@
     <version.org.sonatype.plugins.nexus-staging-maven-plugin>1.7.0</version.org.sonatype.plugins.nexus-staging-maven-plugin>
     <version.org.spdx>1.1.12</version.org.spdx>
     <version.org.wiremock>3.9.2</version.org.wiremock>
+    <version.io.quarkus.platform>3.16.2</version.io.quarkus.platform>
   </properties>
 
   <dependencyManagement>
@@ -241,6 +242,13 @@
         <version>${version.info.picocli}</version>
       </dependency>
       <dependency>
+        <groupId>io.quarkus.platform</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${version.io.quarkus.platform}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>jakarta.validation</groupId>
         <artifactId>jakarta.validation-api</artifactId>
         <version>${version.jakarta.validation}</version>
@@ -275,29 +283,29 @@
         <artifactId>httpcore</artifactId>
         <version>${version.org.apache.httpcomponents.httpcore}</version>
       </dependency>
-      <dependency>
+      <!--<dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-core</artifactId>
         <version>${version.org.apache.maven}</version>
-      </dependency>
+      </dependency>-->
       <!-- Required dependency for maven-core -->
-      <dependency>
+      <!--<dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-classworlds</artifactId>
         <version>${version.org.codehaus.plexus.plexus-classworlds}</version>
-      </dependency>
+      </dependency>-->
       <!-- Required dependency for maven-core -->
-      <dependency>
+      <!--<dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-utils</artifactId>
         <version>${version.org.codehaus.plexus.plexus-utils}</version>
-      </dependency>
+      </dependency>-->
       <!-- Required dependency for kojiji and pnc-common -->
-      <dependency>
+      <!--<dependency>
         <groupId>org.commonjava.atlas</groupId>
         <artifactId>atlas-identities</artifactId>
         <version>${version.org.commonjava.atlas}</version>
-      </dependency>
+      </dependency>-->
       <!-- Required dependency for kojiji and rest-client -->
       <dependency>
         <groupId>org.commonjava.atlas</groupId>
@@ -791,6 +799,34 @@
           <version>${version.com.mycila}</version>
         </plugin>
         <plugin>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-maven-plugin</artifactId>
+          <version>${version.io.quarkus.platform}</version>
+          <configuration>
+            <source>${maven.compiler.source}</source>
+            <target>${maven.compiler.target}</target>
+            <compilerArgs>
+              <arg>--enable-preview</arg>
+            </compilerArgs>
+            <jvmArgs>--enable-preview</jvmArgs>
+          </configuration>
+          <extensions>true</extensions>
+          <executions>
+            <execution>
+              <goals>
+                <goal>build</goal>
+                <goal>generate-code</goal>
+                <goal>generate-code-tests</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>io.smallrye</groupId>
+          <artifactId>jandex-maven-plugin</artifactId>
+          <version>${version.io.smallrye.jandex-maven-plugin}</version>
+        </plugin>
+        <plugin>
           <groupId>net.revelc.code</groupId>
           <artifactId>impsort-maven-plugin</artifactId>
           <version>${version.net.revelc.code.impsort-maven-plugin}</version>
@@ -1261,6 +1297,11 @@ junit.jupiter.execution.parallel.config.strategy=dynamic
 junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameters>
           </properties>
           <skipITs>${skipITs}</skipITs>
+          <systemPropertyVariables>
+            <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+            <maven.home>${maven.home}</maven.home>
+          </systemPropertyVariables>
         </configuration>
         <executions>
           <execution>
@@ -1453,6 +1494,13 @@ junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameter
         <skipTests>true</skipTests>
         <sort.skip>true</sort.skip>
         <spotbugs.skip>true</spotbugs.skip>
+      </properties>
+    </profile>
+    <profile>
+      <id>native</id>
+      <properties>
+        <quarkus.native.enabled>true</quarkus.native.enabled>
+        <skipITs>false</skipITs>
       </properties>
     </profile>
   </profiles>
