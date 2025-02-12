@@ -19,6 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -33,10 +35,10 @@ class BuildFinderTest {
     private static List<String> files;
 
     @BeforeAll
-    static void setTarget() throws IOException {
-        File target = new File(TestUtils.resolveFileResource("./", "").getParentFile().getParentFile(), "pom.xml");
-        assertThat(target).isFile().isReadable();
-        files = Collections.singletonList(target.getPath());
+    static void setTarget() throws IOException, URISyntaxException {
+        Path target = TestUtils.resolveFileResource().getParent().getParent().resolve("pom.xml");
+        assertThat(target).isRegularFile().isReadable();
+        files = Collections.singletonList(target.toString());
     }
 
     @Test

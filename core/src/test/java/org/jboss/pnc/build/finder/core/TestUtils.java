@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public final class TestUtils {
@@ -26,14 +27,14 @@ public final class TestUtils {
         throw new AssertionError();
     }
 
-    static File resolveFileResource(String resourceBase, String resourceName) throws IOException {
-        URL resource = Thread.currentThread().getContextClassLoader().getResource(resourceBase + resourceName);
+    static Path resolveFileResource() throws IOException, URISyntaxException {
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(".");
 
         if (resource == null) {
-            throw new IOException("Unable to locate resource for: " + resourceBase + resourceName);
+            throw new IOException("Unable to locate resource for .");
         }
 
-        return new File(resource.getPath());
+        return Paths.get(resource.toURI());
     }
 
     public static File loadFile(String file) throws IOException {
