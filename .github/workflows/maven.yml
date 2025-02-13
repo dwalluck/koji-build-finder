@@ -59,6 +59,19 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: ${{ matrix.java }}
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+      - name: Check GraalVM
+        run: |
+          echo "JAVA_HOME: ${JAVA_HOME}"
+          java --version
+          echo "GRAALVM_HOME: ${GRAALVM_HOME}"
+          native-image --version
+      - name: Example step using Maven plugin  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
+        run: mvn -Pnative package
       - name: Build with Maven
         run: mvn -B -e -V verify
       - name: Codecov
