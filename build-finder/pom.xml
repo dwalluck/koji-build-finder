@@ -160,7 +160,6 @@
       </plugin>
     </plugins>
   </build>
-
   <profiles>
     <profile>
       <id>empty-javadoc-jar</id>

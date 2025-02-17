@@ -81,6 +81,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
+import io.quarkus.runtime.annotations.QuarkusMain;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help;
@@ -92,6 +93,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
+@QuarkusMain(name = "build-finder")
 @Command(
         abbreviateSynopsis = true,
         description = "Finds builds in Koji and PNC.",

@@ -39,8 +39,8 @@
       <artifactId>kojiji</artifactId>
     </dependency>
     <dependency>
-      <groupId>info.picocli</groupId>
-      <artifactId>picocli</artifactId>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-picocli</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
